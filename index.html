@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔐 License Manager</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      margin-bottom: 20px;
+    }
+    h1 { color: #667eea; text-align: center; margin-bottom: 30px; }
+    h2 { color: #333; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+    .btn {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      margin: 5px;
+      transition: all 0.3s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-danger { background: #ff6b6b; color: white; }
+    .btn-success { background: #51cf66; color: white; }
+    .btn-primary { background: #667eea; color: white; }
+    input {
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 300px;
+      margin-right: 10px;
+    }
+    .status {
+      padding: 20px;
+      border-radius: 10px;
+      margin: 15px 0;
+      font-weight: bold;
+    }
+    .status.active { background: #d3f9d8; }
+    .status.disabled { background: #ffe0e0; }
+    .info { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>🔐 Bot License Manager</h1>
+      
+      <div class="info">
+        <strong>🔗 API Endpoint:</strong><br>
+        <code id="apiUrl">Loading...</code>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>⚡ Global Kill Switch</h2>
+      <div class="status active" id="status">
+        ✅ All bots are ACTIVE
+      </div>
+      <input type="password" id="authKey" placeholder="Enter secret key">
+      <br><br>
+      <button class="btn btn-danger" onclick="globalKill()">
+        ❌ DISABLE ALL BOTS
+      </button>
+      <button class="btn btn-success" onclick="globalEnable()">
+        ✅ ENABLE ALL BOTS
+      </button>
+    </div>
+
+    <div class="card">
+      <h2>🚫 Ban Management</h2>
+      <input type="password" id="authKeyBan" placeholder="Secret key">
+      <input type="text" id="banNumber" placeholder="628123456789">
+      <button class="btn btn-danger" onclick="banNumber()">Ban</button>
+      <button class="btn btn-success" onclick="unbanNumber()">Unban</button>
+    </div>
+
+    <div class="card">
+      <h2>📝 How to Use</h2>
+      <ol>
+        <li>Edit <code>api/check.js</code> untuk update database</li>
+        <li>Tambah/hapus nomor di array <code>licenses</code></li>
+        <li>Ubah <code>globalDisabled</code> jadi <code>true</code> untuk matiin semua bot</li>
+        <li>Deploy ulang ke Vercel</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = window.location.origin;
+    document.getElementById('apiUrl').textContent = API_URL + '/api/check?botNumber=628xxx';
+
+    async function globalKill() {
+      const auth = document.getElementById('authKey').value;
+      if (!auth) return alert('❌ Masukkan secret key!');
+
+      try {
+        const response = await fetch(`${API_URL}/api/global`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'auth': auth
+          },
+          body: JSON.stringify({ action: 'disable' })
+        });
+        const data = await response.json();
+        alert(data.message);
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    async function globalEnable() {
+      const auth = document.getElementById('authKey').value;
+      if (!auth) return alert('❌ Masukkan secret key!');
+
+      try {
+        const response = await fetch(`${API_URL}/api/global`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'auth': auth
+          },
+          body: JSON.stringify({ action: 'enable' })
+        });
+        const data = await response.json();
+        alert(data.message);
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    async function banNumber() {
+      const auth = document.getElementById('authKeyBan').value;
+      const number = document.getElementById('banNumber').value;
+      
+      if (!auth || !number) return alert('❌ Lengkapi data!');
+
+      try {
+        const response = await fetch(`${API_URL}/api/ban`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'auth': auth
+          },
+          body: JSON.stringify({ number })
+        });
+        const data = await response.json();
+        alert(data.message);
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    async function unbanNumber() {
+      const auth = document.getElementById('authKeyBan').value;
+      const number = document.getElementById('banNumber').value;
+      
+      if (!auth || !number) return alert('❌ Lengkapi data!');
+
+      try {
+        const response = await fetch(`${API_URL}/api/unban`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'auth': auth
+          },
+          body: JSON.stringify({ number })
+        });
+        const data = await response.json();
+        alert(data.message);
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    }
+  </script>
+</body>
+</html>
