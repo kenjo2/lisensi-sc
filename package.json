@@ -1,0 +1,9 @@
+{
+  "name": "license-dashboard",
+  "version": "1.0.0",
+  "description": "Bot License Manager",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {}
+}
